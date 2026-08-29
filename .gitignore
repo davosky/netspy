@@ -43,3 +43,12 @@
 !/app/assets/builds/.keep
 
 /node_modules
+
+# Ignore Yarn (node-modules linker) internals, keep patches/releases.
+/.yarn/*
+!/.yarn/patches
+!/.yarn/releases
+!/.yarn/plugins
+!/.yarn/sdks
+/.pnp.*
+/yarn-error.log
