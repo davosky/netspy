@@ -14,6 +14,8 @@ module Netspy
     # Italian localization
     config.i18n.default_locale = :it
     config.i18n.available_locales = [ :it, :en ]
+    config.i18n.fallbacks = [ :it, :en ]
+    config.i18n.load_path += Dir[Rails.root.join("config", "locales", "**", "*.{rb,yml}")]
 
     # Locally linked fonts
     config.assets.paths << Rails.root.join("app", "assets", "fonts")

@@ -1,0 +1,401 @@
+it:
+  app:
+    name: NetSpy
+    tagline: Monitoraggio di reti LAN, WAN, WLAN e WiFi
+    close: Chiudi
+  layouts:
+    navbar:
+      toggle: Apri il menù
+      administrate: Amministrazione
+      credits: Crediti
+      logout: Esci
+  pages:
+    index:
+      heading: NetSpy
+      description: >-
+        NetSpy è lo strumento per monitorare e tenere sotto controllo le reti
+        aziendali: LAN, WAN, WLAN e reti WiFi.
+    credits:
+      title: Crediti
+      intro: Informazioni sull'applicazione e sulle tecnologie utilizzate.
+      application: Applicazione
+      purpose: Scopo
+      stack: Tecnologie
+      author: Autore
+  pundit:
+    not_authorized: Non sei autorizzato a eseguire questa azione.
+  activerecord:
+    models:
+      user:
+        one: Utente
+        many: Utenti
+        other: Utenti
+    attributes:
+      user:
+        username: Nome utente
+        password: Password
+        password_confirmation: Conferma password
+        remember_me: Ricordami
+        email: Email
+        first_name: Nome
+        last_name: Cognome
+        gender: Genere
+        region: Regione
+        province: Provincia
+        category: Categoria
+        admin: Amministratore
+        manager: Manager
+        regular: Regolare
+        created_at: Creato il
+        updated_at: Aggiornato il
+    errors:
+      messages:
+        record_invalid: "Validazione fallita: %{errors}"
+        restrict_dependent_destroy:
+          has_one: Il record non può essere cancellato perchè esiste un %{record} dipendente
+          has_many: Il record non può essere cancellato perchè esistono %{record} dipendenti
+  activemodel:
+    attributes:
+      import_form:
+        zoning_id: Azzonamento
+      import_spi_form:
+        zoning_id: Azzonamento
+      integration_flc_upload_form:
+        file: File CSV
+        zoning_id: Azzonamento
+        year: Anno
+        month: Mese
+  date:
+    abbr_day_names:
+      - dom
+      - lun
+      - mar
+      - mer
+      - gio
+      - ven
+      - sab
+    abbr_month_names:
+      -
+      - gen
+      - feb
+      - mar
+      - apr
+      - mag
+      - giu
+      - lug
+      - ago
+      - set
+      - ott
+      - nov
+      - dic
+    day_names:
+      - domenica
+      - lunedì
+      - martedì
+      - mercoledì
+      - giovedì
+      - venerdì
+      - sabato
+    formats:
+      default: "%d/%m/%Y"
+      long: "%d %B %Y"
+      short: "%d %b"
+    month_names:
+      -
+      - gennaio
+      - febbraio
+      - marzo
+      - aprile
+      - maggio
+      - giugno
+      - luglio
+      - agosto
+      - settembre
+      - ottobre
+      - novembre
+      - dicembre
+    order:
+      - :day
+      - :month
+      - :year
+  datetime:
+    distance_in_words:
+      about_x_hours:
+        one: circa un'ora
+        other: circa %{count} ore
+      about_x_months:
+        one: circa un mese
+        other: circa %{count} mesi
+      about_x_years:
+        one: circa un anno
+        other: circa %{count} anni
+      almost_x_years:
+        one: quasi un anno
+        other: quasi %{count} anni
+      half_a_minute: mezzo minuto
+      less_than_x_seconds:
+        one: meno di un secondo
+        other: meno di %{count} secondi
+      less_than_x_minutes:
+        one: meno di un minuto
+        other: meno di %{count} minuti
+      over_x_years:
+        one: oltre un anno
+        other: oltre %{count} anni
+      x_seconds:
+        one: "%{count} secondo"
+        other: "%{count} secondi"
+      x_minutes:
+        one: "%{count} minuto"
+        other: "%{count} minuti"
+      x_days:
+        one: "%{count} giorno"
+        other: "%{count} giorni"
+      x_months:
+        one: "%{count} mese"
+        other: "%{count} mesi"
+      x_years:
+        one: "%{count} anno"
+        other: "%{count} anni"
+    prompts:
+      second: Secondi
+      minute: Minuto
+      hour: Ora
+      day: Giorno
+      month: Mese
+      year: Anno
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      accepted: deve essere accettata
+      blank: non può essere lasciato in bianco
+      confirmation: non coincide con %{attribute}
+      empty: non può essere vuoto
+      equal_to: deve essere uguale a %{count}
+      even: deve essere pari
+      exclusion: è riservato
+      greater_than: deve essere maggiore di %{count}
+      greater_than_or_equal_to: deve essere maggiore o uguale a %{count}
+      inclusion: non è compreso tra le opzioni disponibili
+      invalid: non è valido
+      less_than: deve essere minore di %{count}
+      less_than_or_equal_to: deve essere minore o uguale a %{count}
+      model_invalid: "Validazione fallita: %{errors}"
+      not_a_number: non è un numero
+      not_an_integer: non è un numero intero
+      odd: deve essere dispari
+      other_than: devono essere di numero diverso da %{count}
+      present: deve essere lasciato in bianco
+      required: deve esistere
+      taken: è già presente
+      too_long:
+        one: è troppo lungo (il massimo è %{count} carattere)
+        other: è troppo lungo (il massimo è %{count} caratteri)
+      too_short:
+        one: è troppo corto (il minimo è %{count} carattere)
+        other: è troppo corto (il minimo è %{count} caratteri)
+      wrong_length:
+        one: è della lunghezza sbagliata (deve essere di %{count} carattere)
+        other: è della lunghezza sbagliata (deve essere di %{count} caratteri)
+    template:
+      body: "Ricontrolla i seguenti campi:"
+      header:
+        one: "Non posso salvare questo %{model}: %{count} errore"
+        other: "Non posso salvare questo %{model}: %{count} errori."
+  helpers:
+    select:
+      prompt: Seleziona...
+    submit:
+      create: Crea %{model}
+      submit: Invia %{model}
+      update: Aggiorna %{model}
+  number:
+    currency:
+      format:
+        delimiter: "."
+        format: "%n %u"
+        precision: 2
+        separator: ","
+        significant: false
+        strip_insignificant_zeros: false
+        unit: "€"
+    format:
+      delimiter: "."
+      precision: 2
+      separator: ","
+      significant: false
+      strip_insignificant_zeros: false
+    human:
+      decimal_units:
+        format: "%n %u"
+        units:
+          billion: Miliardi
+          million: Milioni
+          quadrillion: Biliardi
+          thousand: Mila
+          trillion: Bilioni
+          unit: ""
+      format:
+        delimiter: ""
+        precision: 3
+        significant: true
+        strip_insignificant_zeros: true
+      storage_units:
+        format: "%n %u"
+        units:
+          byte:
+            one: Byte
+            other: Byte
+          eb: EB
+          gb: GB
+          kb: KB
+          mb: MB
+          pb: PB
+          tb: TB
+    percentage:
+      format:
+        delimiter: ""
+        format: "%n%"
+    precision:
+      format:
+        delimiter: ""
+  support:
+    array:
+      last_word_connector: " e "
+      two_words_connector: " e "
+      words_connector: ", "
+  time:
+    am: am
+    formats:
+      default: "%a %d %b %Y, %H:%M:%S %z"
+      long: "%d %B %Y %H:%M"
+      short: "%d %b %H:%M"
+    pm: pm
+  admin:
+    actions:
+      bulk_delete:
+        breadcrumb: Eliminazione multipla
+        bulk_link: Elimina %{model_label_plural} selezionati
+        menu: Eliminazione multipla
+        title: Elimina %{model_label_plural}
+      dashboard:
+        breadcrumb: Pannello di controllo
+        menu: Pannello di controllo
+        title: Amministrazione
+      delete:
+        breadcrumb: Elimina
+        done: eliminato
+        link: Elimina '%{object_label}'
+        menu: Elimina
+        title: Elimina %{model_label} '%{object_label}'
+      edit:
+        breadcrumb: Modifica
+        done: Modificato
+        link: Modifica questo %{model_label}
+        menu: Modifica
+        title: Modifica %{model_label} '%{object_label}'
+      export:
+        breadcrumb: Esporta
+        bulk_link: Esporta %{model_label_plural} selezionati
+        done: Esportati
+        link: Esporta %{model_label_plural} trovati
+        menu: Esporta
+        title: Esporta %{model_label_plural}
+      history_index:
+        breadcrumb: Storico
+        menu: Storico
+        title: Storico %{model_label_plural}
+      history_show:
+        breadcrumb: Storico
+        menu: Storico
+        title: Storico %{model_label} di '%{object_label}'
+      index:
+        breadcrumb: "%{model_label_plural}"
+        menu: Elenco
+        title: Elenco %{model_label_plural}
+      new:
+        breadcrumb: Nuovo
+        done: creato
+        link: Aggiungi nuovo %{model_label}
+        menu: Aggiungi nuovo
+        title: Nuovo %{model_label}
+      show:
+        breadcrumb: "%{object_label}"
+        menu: Visualizza
+        title: Dettaglio %{model_label} '%{object_label}'
+      show_in_app:
+        menu: Visualizza nell'applicazione
+    export:
+      click_to_reverse_selection: Clicca per invertire la selezione
+      confirmation: Esporta in  %{name}
+      csv:
+        col_sep: Separatore colonna
+        col_sep_help: Lasciare vuoto per il valore di default ('%{value}')
+        default_col_sep: ","
+        encoding_to: Codifica come
+        encoding_to_help: "Seleziona la codifica di output. Lascia vuoto per tenere la codifica corrente: (%{name})"
+        header_for_association_methods: "%{name} [%{association}]"
+        header_for_root_methods: "%{name}"
+        skip_header: Nessuna intestazione
+        skip_header_help: Non esportare l'intestazione (nessuna descrizione per i campi)
+      display: "Mostra %{name}: %{type}"
+      empty_value_for_associated_objects: "<empty>"
+      fields_from: Campi da %{name}
+      fields_from_associated: Campi da %{name} associato
+      options_for: Opzioni per %{name}
+      select: Seleziona i campi per esportare
+    flash:
+      error: "%{name} fallisce nel %{action}"
+      model_not_found: Modello '%{model}' non si trova
+      noaction: Nessuna azione presa
+      object_not_found: "%{model} con id '%{id}' non puo essere trovato"
+      successful: "%{name} esegue con successo %{action}"
+    form:
+      all_of_the_following_related_items_will_be_deleted: "? I seguenti elementi correlati potrebbero essere eliminati o resi orfani:"
+      are_you_sure_you_want_to_delete_the_object: Sei sicuro di voler eliminare questo %{model_name}
+      basic_info: Informazioni base
+      bulk_delete: "I seguenti oggetti saranno eliminati, potrebbero essere eliminati o resi orfani anche i loro elementi correlati:"
+      cancel: Annulla
+      char_length_of: lunghezza di
+      char_length_up_to: lunghezza fino a
+      confirmation: Si, sono sicuro
+      new_model: "%{name} (new)"
+      one_char: carattere
+      optional: Opzionale
+      required: Obbligatorio
+      save: Salva
+      save_and_add_another: Salva ed aggiungi nuovo
+      save_and_edit: Salva e modifica
+    misc:
+      add_filter: Aggiungi filtro
+      add_new: Aggiungi filtro
+      ago: fa
+      bulk_menu_title: Elementi selezionati
+      chose_all: Seleziona tutto
+      chosen: Selezionato %{name}
+      clear_all: Pulisci
+      down: Giù
+      filter: Filtro
+      filter_date_format: dd/mm/yy
+      log_out: Esci
+      navigation: Navigazione
+      refresh: Ricarica
+      remove: Rimuovi
+      search: Cerca
+      show_all: Mostra tutto
+      up: Sopra
+    table_headers:
+      changes: Modifiche
+      created_at: Data/Ora
+      item: Elemento
+      last_used: Ultimo utilizzo
+      message: Messaggio
+      model_name: Nome modello
+      records: Elementi
+      username: Utente
+    home:
+      name: Home
+    pagination:
+      next: Prossima &raquo;
+      previous: "&laquo; Precedente"
+      truncate: "..."

@@ -29,3 +29,49 @@
 
 en:
   hello: "Hello world"
+  app:
+    name: NetSpy
+    tagline: Monitoring of LAN, WAN, WLAN and WiFi networks
+    close: Close
+  layouts:
+    navbar:
+      toggle: Open menu
+      administrate: Administration
+      credits: Credits
+      logout: Sign out
+  pages:
+    index:
+      heading: NetSpy
+      description: >-
+        NetSpy is the tool to monitor and keep company networks under control:
+        LAN, WAN, WLAN and WiFi networks.
+    credits:
+      title: Credits
+      intro: Information about the application and the technologies it uses.
+      application: Application
+      purpose: Purpose
+      stack: Technologies
+      author: Author
+  pundit:
+    not_authorized: You are not authorized to perform this action.
+  activerecord:
+    models:
+      user:
+        one: User
+        other: Users
+    attributes:
+      user:
+        username: Username
+        password: Password
+        password_confirmation: Password confirmation
+        remember_me: Remember me
+        email: Email
+        first_name: First name
+        last_name: Last name
+        gender: Gender
+        region: Region
+        province: Province
+        category: Category
+        admin: Admin
+        manager: Manager
+        regular: Regular
