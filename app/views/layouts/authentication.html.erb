@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>" data-bs-theme="dark">
+  <%= render "layouts/head" %>
+
+  <body class="auth-body">
+    <main class="auth-wrapper d-flex flex-column align-items-center justify-content-center min-vh-100 p-3">
+      <div class="auth-card w-100">
+        <%= render "layouts/flash" %>
+        <%= yield %>
+      </div>
+    </main>
+  </body>
+</html>

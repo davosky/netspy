@@ -1,0 +1,26 @@
+<% content_for :title, t("pages.credits.title") %>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-body">
+        <h1 class="h4 card-title mb-3"><%= t("pages.credits.title") %></h1>
+        <p class="text-body-secondary"><%= t("pages.credits.intro") %></p>
+
+        <dl class="row mb-0">
+          <dt class="col-sm-4"><%= t("pages.credits.application") %></dt>
+          <dd class="col-sm-8"><%= t("app.name") %></dd>
+
+          <dt class="col-sm-4"><%= t("pages.credits.purpose") %></dt>
+          <dd class="col-sm-8"><%= t("pages.index.description") %></dd>
+
+          <dt class="col-sm-4"><%= t("pages.credits.stack") %></dt>
+          <dd class="col-sm-8">Ruby on Rails, Hotwire, Bootstrap (Slate), PostgreSQL</dd>
+
+          <dt class="col-sm-4"><%= t("pages.credits.author") %></dt>
+          <dd class="col-sm-8">Davo Davosky</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>

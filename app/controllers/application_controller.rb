@@ -8,7 +8,15 @@ class ApplicationController < ActionController::Base
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
 
+  layout :layout_by_resource
+
   private
+
+  # Devise pages (sign in, password reset, ...) use the bare, centered layout;
+  # everything else gets the full chrome with the navbar.
+  def layout_by_resource
+    devise_controller? ? "authentication" : "application"
+  end
 
   def configure_permitted_parameters
     extra = %i[username first_name last_name gender region province category]

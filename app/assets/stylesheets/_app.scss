@@ -1,0 +1,17 @@
+// NetSpy application-specific styles
+
+.auth-body {
+  background: linear-gradient(180deg, $body-bg 0%, darken($body-bg, 3%) 100%);
+}
+
+.auth-wrapper {
+  width: 100%;
+}
+
+.auth-card {
+  max-width: 24rem;
+}
+
+.navbar-brand img {
+  display: block;
+}

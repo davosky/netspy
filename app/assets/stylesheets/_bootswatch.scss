@@ -185,13 +185,25 @@
 
 // Typography
 
+body {
+  font-family: $font-family-sans-serif;
+}
+
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
+  font-family: $font-family-sans-serif;
+  letter-spacing: 0.01em;
   text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.3);
+}
+
+.navbar-brand {
+  font-family: $font-family-sans-serif;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 // Forms

@@ -4,6 +4,46 @@
 $theme: "slate" !default;
 
 //
+// Local fonts — Barlow Condensed (app/assets/fonts, served by Propshaft)
+//
+
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("BarlowCondensed-Light.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("BarlowCondensed-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("BarlowCondensed-Italic.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Barlow Condensed";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("BarlowCondensed-Bold.ttf") format("truetype");
+}
+
+// Make the local font the app's default sans-serif family (before Bootstrap).
+$font-family-sans-serif: "Barlow Condensed", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$headings-font-weight: 600;
+
+//
 // Color system
 //
 
