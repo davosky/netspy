@@ -42,6 +42,9 @@
 /app/assets/builds/*
 !/app/assets/builds/.keep
 
+# Stray lanscan log files (the app writes scans under log/lanscan/).
+scan_*.log
+
 /node_modules
 
 # Ignore Yarn (node-modules linker) internals, keep patches/releases.

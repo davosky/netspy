@@ -1,0 +1,25 @@
+class LanscansController < ApplicationController
+  before_action :authenticate_user!
+
+  # Grouped by run (same scanned_at), most recent first.
+  def index
+    authorize Lanscan
+    @runs = policy_scope(Lanscan).recent.group_by(&:scanned_at)
+  end
+
+  def show
+    @lanscan = policy_scope(Lanscan).find(params[:id])
+    authorize @lanscan
+  end
+
+  # Enqueues a background scan with the parameters entered on the landing page.
+  def run
+    authorize Lanscan, :run?
+    options = params.permit(:target, :ports, :timeout).to_h.symbolize_keys
+    LanscanRunner.new(**options).validate!
+    LanscanJob.perform_later(**options)
+    redirect_to lanscans_path, notice: t("lanscans.run.enqueued", target: options[:target].presence || LanscanRunner::DEFAULT_TARGET)
+  rescue LanscanRunner::InvalidParams => e
+    redirect_to root_path, alert: e.message
+  end
+end

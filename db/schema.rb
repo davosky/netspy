@@ -10,9 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_30_114101) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_30_161021) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "lanscans", force: :cascade do |t|
+    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.string "ip_address", null: false
+    t.string "mac_address"
+    t.string "open_ports"
+    t.datetime "scanned_at", null: false
+    t.string "target", null: false
+    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.index ["ip_address"], name: "index_lanscans_on_ip_address"
+    t.index ["scanned_at"], name: "index_lanscans_on_scanned_at"
+    t.index ["target"], name: "index_lanscans_on_target"
+  end
 
   create_table "users", force: :cascade do |t|
     t.boolean "admin", default: false, null: false

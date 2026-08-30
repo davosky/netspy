@@ -1,0 +1,49 @@
+<% content_for :title, t("lanscans.index.title") %>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1 class="h3 mb-0"><i class="bi bi-radar me-2"></i><%= t("lanscans.index.title") %></h1>
+  <%= link_to root_path, class: "btn btn-outline-primary" do %>
+    <i class="bi bi-play-fill me-1"></i><%= t("lanscans.index.new_scan") %>
+  <% end %>
+</div>
+
+<% if @runs.empty? %>
+  <p class="text-body-secondary"><%= t("lanscans.index.empty") %></p>
+<% else %>
+  <% @runs.each do |scanned_at, rows| %>
+    <div class="card shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between">
+        <span><i class="bi bi-clock-history me-2"></i><%= l(scanned_at, format: :long) %></span>
+        <span class="text-body-secondary"><%= rows.first.target %> · <%= t("lanscans.index.hosts_count", count: rows.size) %></span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead>
+            <tr>
+              <th><%= Lanscan.human_attribute_name(:ip_address) %></th>
+              <th><%= Lanscan.human_attribute_name(:mac_address) %></th>
+              <th><%= Lanscan.human_attribute_name(:open_ports) %></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% rows.each do |lanscan| %>
+              <tr>
+                <td><code><%= lanscan.ip_address %></code></td>
+                <td><%= lanscan.mac_address.presence || "—" %></td>
+                <td>
+                  <% lanscan.open_ports_list.each do |port| %>
+                    <span class="badge text-bg-secondary"><%= port %></span>
+                  <% end %>
+                </td>
+                <td class="text-end">
+                  <%= link_to t("lanscans.index.detail"), lanscan_path(lanscan), class: "btn btn-sm btn-link" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% end %>
+<% end %>

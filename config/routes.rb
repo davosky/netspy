@@ -9,7 +9,12 @@ Rails.application.routes.draw do
 
   namespace :admin do
     resources :users
+    resources :lanscans
     root to: "users#index"
+  end
+
+  resources :lanscans, only: [ :index, :show ] do
+    post :run, on: :collection
   end
 
   get "credits", to: "pages#credits"

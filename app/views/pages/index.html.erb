@@ -6,3 +6,11 @@
     <%= t("pages.index.description") %>
   </p>
 </div>
+
+<% if policy(Lanscan).run? %>
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-9">
+      <%= render "lanscans/form", defaults: @lanscan_defaults %>
+    </div>
+  </div>
+<% end %>

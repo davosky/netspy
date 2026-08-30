@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Compiles the Go `lanscan` network scanner into vendor/lanscan/bin/lanscan.
+# The compiled binary is committed so deploys without a Go toolchain still work;
+# run this after changing vendor/lanscan/*.go, or to rebuild for another OS/arch.
+set -euo pipefail
+
+cd "$(dirname "$0")/../vendor/lanscan"
+
+if ! command -v go >/dev/null 2>&1; then
+  echo "build-lanscan: Go toolchain not found; skipping (committed binary kept)." >&2
+  exit 0
+fi
+
+# Pin to the locally installed toolchain: NetSpy tracks whatever Go is on the
+# build host rather than fetching the exact patch release from go.mod.
+export GOTOOLCHAIN=local
+
+go build -o bin/lanscan .
+echo "build-lanscan: built $(cd ../.. && pwd)/vendor/lanscan/bin/lanscan"

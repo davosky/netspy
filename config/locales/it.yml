@@ -6,6 +6,7 @@ it:
   layouts:
     navbar:
       toggle: Apri il menù
+      lanscans: Scansioni LAN
       administrate: Amministrazione
       change_password: Cambia password
       credits: Crediti
@@ -25,6 +26,28 @@ it:
       purpose: Scopo
       stack: Tecnologie
       author: Autore
+  lanscans:
+    index:
+      title: Scansioni LAN
+      new_scan: Nuova scansione
+      empty: Nessuna scansione registrata. Avviane una dalla home.
+      hosts_count:
+        one: 1 host
+        other: "%{count} host"
+      detail: Dettaglio
+    show:
+      title: Host rilevato
+      back: Torna alle scansioni
+    form:
+      title: Avvia una scansione LAN
+      target: Subnet (CIDR)
+      target_hint: Notazione CIDR, es. 192.168.1.0/24
+      ports: Porte
+      timeout: Timeout (ms)
+      submit: Avvia scansione
+      results_link: Vedi i risultati
+    run:
+      enqueued: "Scansione di %{target} avviata: i risultati compariranno qui a fine scansione."
   pundit:
     not_authorized: Non sei autorizzato a eseguire questa azione.
   activerecord:
@@ -33,7 +56,19 @@ it:
         one: Utente
         many: Utenti
         other: Utenti
+      lanscan:
+        one: Scansione LAN
+        many: Scansioni LAN
+        other: Scansioni LAN
     attributes:
+      lanscan:
+        scanned_at: Data scansione
+        target: Subnet
+        ip_address: Indirizzo IP
+        mac_address: MAC address
+        open_ports: Porte aperte
+        created_at: Creato il
+        updated_at: Aggiornato il
       user:
         username: Nome utente
         password: Password
