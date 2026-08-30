@@ -32,7 +32,8 @@ RSpec.describe "Pages", type: :request do
       get credits_path
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to include(I18n.t("pages.credits.title"))
+      expect(response.body).to include(I18n.t("pages.credits.author"))
+      expect(response.body).to include(NetSpy::Version::NUMBER)
     end
   end
 end
