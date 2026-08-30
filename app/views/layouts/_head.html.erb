@@ -4,6 +4,10 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="application-name" content="<%= t("app.name") %>">
   <meta name="mobile-web-app-capable" content="yes">
+  <%# Same-URL Turbo visits (e.g. the lanscan page refreshing itself when a scan
+      finishes) morph the DOM in place and keep the scroll position. %>
+  <meta name="turbo-refresh-method" content="morph">
+  <meta name="turbo-refresh-scroll" content="preserve">
   <%= csrf_meta_tags %>
   <%= yield :head %>
   <link rel="icon" href="/icon.png" type="image/png">

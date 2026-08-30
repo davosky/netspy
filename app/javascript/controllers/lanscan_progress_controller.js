@@ -2,22 +2,26 @@ import { Controller } from "@hotwired/stimulus"
 
 // Polls a LanscanRun's JSON endpoint and drives the progress bar: percentage,
 // elapsed time, and a final message with the total time once the scan ends.
+// When a scan that was still running finishes, it refreshes the page so the
+// results list below picks up the new rows.
 export default class extends Controller {
   static values = {
     url: String,
     interval: { type: Number, default: 1500 },
-    doneTemplate: String, // "... %{duration} ... %{count} ..."
+    doneTemplate: String, // "... %{duration} ... %{hosts} ..."
     failText: String,
   }
   static targets = ["bar", "percent", "elapsed", "status"]
 
   connect() {
+    this.wasActive = false
     this.tick()
     this.timer = setInterval(() => this.tick(), this.intervalValue)
   }
 
   disconnect() {
     clearInterval(this.timer)
+    clearTimeout(this.refreshTimer)
   }
 
   async tick() {
@@ -42,6 +46,11 @@ export default class extends Controller {
       clearInterval(this.timer)
       this.barTarget.classList.remove("progress-bar-striped", "progress-bar-animated")
       this.finish(data)
+      // Only refresh if we actually watched the scan run (not when the page
+      // just loaded on an already-finished run) — avoids a reload loop.
+      if (this.wasActive) this.refreshTimer = setTimeout(() => this.refreshPage(), 600)
+    } else {
+      this.wasActive = true
     }
   }
 
@@ -57,6 +66,14 @@ export default class extends Controller {
       this.statusTarget.classList.add("text-danger")
     }
     this.statusTarget.hidden = false
+  }
+
+  refreshPage() {
+    if (window.Turbo) {
+      window.Turbo.visit(window.location.href, { action: "replace" })
+    } else {
+      window.location.reload()
+    }
   }
 
   formatDuration(seconds) {
