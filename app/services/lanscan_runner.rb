@@ -8,7 +8,7 @@ require "ipaddr"
 class LanscanRunner
   DEFAULT_TARGET  = "10.182.1.0/24"
   DEFAULT_PORTS   = "1-1024"
-  DEFAULT_TIMEOUT = 700
+  DEFAULT_TIMEOUT = 550
   TIMEOUT_RANGE   = (50..10_000)
 
   # Upper bound on the number of addresses a single scan may enumerate. Keeps a

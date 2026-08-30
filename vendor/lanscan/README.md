@@ -27,7 +27,7 @@ cd vendor/lanscan && GOOS=darwin GOARCH=arm64 go build -o bin/lanscan-darwin .
 |------------|------------------|---------|
 | `-target`  | `10.182.1.0/24`  | subnet to scan, CIDR notation |
 | `-ports`   | `1-1024`         | TCP port range, `START-END` |
-| `-timeout` | `700`            | per-port connect timeout (ms) |
+| `-timeout` | `550`            | per-port connect timeout (ms) |
 | `-table`   | `lanscans`       | destination PostgreSQL table |
 | `-log-dir` | `.`              | directory for the `scan_<timestamp>.log` file |
 | `-no-log`  | `false`          | do not write a log file (stdout only) |

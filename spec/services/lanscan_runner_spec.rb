@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe LanscanRunner do
   describe ".defaults" do
     it "exposes the CLI defaults" do
-      expect(described_class.defaults).to eq(target: "10.182.1.0/24", ports: "1-1024", timeout: 700)
+      expect(described_class.defaults).to eq(target: "10.182.1.0/24", ports: "1-1024", timeout: 550)
     end
   end
 

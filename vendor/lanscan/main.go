@@ -217,7 +217,7 @@ func writeProgressFile(path string, current, total int) {
 func main() {
 	target := flag.String("target", "10.182.1.0/24", "subnet da scansionare (CIDR)")
 	ports := flag.String("ports", "1-1024", "range di porte da scansionare (es. 1-1024)")
-	timeoutMs := flag.Int("timeout", 700, "timeout di connessione in millisecondi")
+	timeoutMs := flag.Int("timeout", 550, "timeout di connessione in millisecondi")
 	table := flag.String("table", "lanscans", "tabella PostgreSQL in cui salvare i risultati")
 	logDir := flag.String("log-dir", ".", "cartella in cui salvare il file di log della scansione")
 	noLog := flag.Bool("no-log", false, "non scrivere alcun file di log (solo stdout)")
