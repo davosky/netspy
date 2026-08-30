@@ -66,8 +66,9 @@ Port scanner concorrente scritto in Go (`vendor/lanscan/`), compilato in
 `vendor/lanscan/bin/lanscan` (binario `linux/amd64` versionato, ricompilabile
 con `bin/build-lanscan`; incluso anche in `bin/setup`).
 
-- Dalla home, il form **Avvia una scansione LAN** accetta `target` (CIDR),
-  intervallo porte e timeout, e mette in coda un `LanscanJob`.
+- Su `/lanscans` (voce di navbar «Scansioni LAN») il form **Avvia una
+  scansione LAN** accetta `target` (CIDR), intervallo porte e timeout, e mette
+  in coda un `LanscanJob`.
 - `LanscanRunner` (`app/services/`) valida i parametri, poi lancia il binario
   passandogli la connessione al DB di NetSpy via variabili `PG*`; il binario
   scrive una riga per host con porte aperte nella tabella `lanscans`.
@@ -168,8 +169,9 @@ Concurrent port scanner written in Go (`vendor/lanscan/`), compiled to
 `vendor/lanscan/bin/lanscan` (a committed `linux/amd64` binary, rebuilt with
 `bin/build-lanscan`; also run from `bin/setup`).
 
-- On the landing page, the **Avvia una scansione LAN** form takes a `target`
-  (CIDR), a port range and a timeout, and enqueues a `LanscanJob`.
+- On `/lanscans` (navbar «Scansioni LAN»), the **Avvia una scansione LAN** form
+  takes a `target` (CIDR), a port range and a timeout, and enqueues a
+  `LanscanJob`.
 - `LanscanRunner` (`app/services/`) validates the parameters, then runs the
   binary, handing it NetSpy's database connection through `PG*` environment
   variables; the binary writes one row per host with open ports into the
