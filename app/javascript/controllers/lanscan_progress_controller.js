@@ -46,12 +46,21 @@ export default class extends Controller {
       clearInterval(this.timer)
       this.barTarget.classList.remove("progress-bar-striped", "progress-bar-animated")
       this.finish(data)
-      // Only refresh if we actually watched the scan run (not when the page
-      // just loaded on an already-finished run) — avoids a reload loop.
-      if (this.wasActive) this.refreshTimer = setTimeout(() => this.refreshPage(), 600)
+      // Only act if we actually watched the scan run (not when the page just
+      // loaded on an already-finished run) — avoids a reload loop.
+      if (this.wasActive) {
+        this.resetForm()
+        this.refreshTimer = setTimeout(() => this.refreshPage(), 600)
+      }
     } else {
       this.wasActive = true
     }
+  }
+
+  // Back to the server-rendered default values (form.reset() restores each
+  // field to its `value` attribute, which is LanscanRunner.defaults).
+  resetForm() {
+    document.getElementById("lanscan-launch-form")?.reset()
   }
 
   finish(data) {

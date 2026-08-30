@@ -4,7 +4,7 @@
     <h2 class="h5 card-title mb-3">
       <i class="bi bi-radar me-2"></i><%= t("lanscans.form.title") %>
     </h2>
-    <%= form_with url: run_lanscans_path, method: :post, class: "row g-3" do %>
+    <%= form_with url: run_lanscans_path, method: :post, id: "lanscan-launch-form", class: "row g-3" do %>
       <div class="col-12 col-md-3">
         <%= label_tag :target, t("lanscans.form.target"), class: "form-label" %>
         <%= text_field_tag :target, defaults[:target], class: "form-control", required: true,

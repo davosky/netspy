@@ -20,6 +20,8 @@ RSpec.describe "Lanscans", type: :request do
       expect(response.body).to include("10.1.1.5")
       expect(response.body).to include("10.1.1.0/24")
       expect(response.body).to include(I18n.t("lanscans.form.title"))
+      expect(response.body).to include('id="lanscan-launch-form"')
+      expect(response.body).to include(LanscanRunner::DEFAULT_TARGET)
     end
 
     it "shows the live progress card for the run passed in ?run=" do
