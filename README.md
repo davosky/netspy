@@ -1,14 +1,18 @@
 # NetSpy
 
-NetSpy è lo strumento per monitorare e tenere sotto controllo le reti
-aziendali: **LAN, WAN, WLAN e WiFi**.
+**🇮🇹 [Italiano](#italiano) · 🇬🇧 [English](#english)**
 
-- Versione corrente: **0.0.3** — nome in codice *Golubiro* (vedi [`VERSION`](VERSION)).
-- Licenza: **MIT** (vedi [LICENCE.md](LICENCE.md)).
+- Versione / Version: **0.0.3** — nome in codice / codename *Golubiro* (vedi / see [`VERSION`](VERSION)).
+- Licenza / License: **MIT** (vedi / see [LICENCE.md](LICENCE.md)).
 
 ---
 
-## 🏗️ Stack tecnico
+## Italiano
+
+NetSpy è lo strumento per monitorare e tenere sotto controllo le reti
+aziendali: **LAN, WAN, WLAN e WiFi**.
+
+### 🏗️ Stack tecnico
 
 | Ambito        | Tecnologia |
 |---------------|------------|
@@ -25,9 +29,7 @@ aziendali: **LAN, WAN, WLAN e WiFi**.
 | Test          | RSpec + FactoryBot + Capybara |
 | Deploy        | Alma Linux + Apache + Phusion Passenger |
 
----
-
-## 🚀 Avvio del progetto
+### 🚀 Avvio del progetto
 
 ```bash
 bin/setup   # setup iniziale (dipendenze Ruby/JS, creazione e migrazione DB)
@@ -49,9 +51,7 @@ L'applicazione legge le variabili d'ambiente da `.env` (gestite da
 > sviluppo (credenziali reali, mai versionate) e uno per test / `db/seeds.rb`
 > (credenziali palesemente fittizie).
 
----
-
-## 🔐 Autenticazione e accessi
+### 🔐 Autenticazione e accessi
 
 - Login tramite **username** (l'email resta obbligatoria ma non è chiave di login);
   lookup e unicità dello username sono case-insensitive.
@@ -60,9 +60,7 @@ L'applicazione legge le variabili d'ambiente da `.env` (gestite da
 - Account **lockable**: 3 tentativi falliti bloccano l'account.
 - Cambio password self-service da `/account/password/edit`.
 
----
-
-## 🗺️ Rotte principali
+### 🗺️ Rotte principali
 
 | Percorso                 | Descrizione |
 |--------------------------|-------------|
@@ -73,9 +71,7 @@ L'applicazione legge le variabili d'ambiente da `.env` (gestite da
 | `/admin`                 | pannello Administrate (solo `admin`) |
 | `/up`                    | health check Rails |
 
----
-
-## 🧪 Test e qualità
+### 🧪 Test e qualità
 
 ```bash
 bundle exec rspec            # suite di test (spec/)
@@ -88,9 +84,7 @@ bundle exec brakeman         # analisi statica di sicurezza
 Tutti i test girano **esclusivamente sul database di test**; il database di
 sviluppo non va mai usato per i test.
 
----
-
-## 📦 Aggiornare il grafo della conoscenza
+### 📦 Aggiornare il grafo della conoscenza
 
 Il progetto mantiene un knowledge graph in `graphify-out/`:
 
@@ -99,11 +93,104 @@ graphify update .                 # aggiorna il grafo dopo modifiche al codice (
 graphify query "<domanda>"        # interroga la codebase
 ```
 
----
-
-## 📄 Licenza
+### 📄 Licenza
 
 Distribuito sotto licenza **MIT**. Vedi [LICENCE.md](LICENCE.md) (testo in
 italiano e inglese).
 
 _Codice sviluppato con l'apporto di intelligenza artificiale._
+
+---
+
+## English
+
+NetSpy is the tool for monitoring and keeping corporate networks under
+control: **LAN, WAN, WLAN and WiFi**.
+
+### 🏗️ Tech stack
+
+| Area           | Technology |
+|----------------|------------|
+| Language       | Ruby 4.0.1 |
+| Framework      | Ruby on Rails ~> 8.1.3 |
+| Database       | PostgreSQL |
+| Frontend       | Hotwire (Turbo + Stimulus) |
+| CSS            | Bootstrap 5.3 + Bootswatch (*Slate* theme) + Bootstrap Icons |
+| Assets         | Propshaft, Yarn (`nodeLinker: node-modules`), esbuild + Dart Sass |
+| Authentication | Devise (login via `username`), with `lockable` and self-service password change |
+| Authorization  | Pundit (`ApplicationPolicy`: everything for `admin`, denied by default) |
+| Admin          | Administrate, mounted at `/admin` (`admin` only) |
+| Localization   | i18n, `default_locale = :it` (`:it`, `:en` available) |
+| Testing        | RSpec + FactoryBot + Capybara |
+| Deployment     | Alma Linux + Apache + Phusion Passenger |
+
+### 🚀 Getting started
+
+```bash
+bin/setup   # initial setup (Ruby/JS dependencies, database creation and migration)
+bin/dev     # starts Rails + JS watcher (esbuild) + CSS watcher (Sass)
+```
+
+The application reads environment variables from `.env` (managed by
+`dotenv-rails`):
+
+| Variable           | Description |
+|--------------------|-------------|
+| `DATABASE_HOST`    | PostgreSQL host (e.g. `localhost`) |
+| `DATABASE_USER`    | database user |
+| `DATABASE_PASSWORD`| database password |
+| `SECRET_KEY_BASE`  | Rails secret (`bin/rails secret`) |
+| `ADMIN_*`          | data for the admin user created by `db/seeds.rb` (idempotent) |
+
+> **Two separate database users, never the same credentials:** one for
+> development (real credentials, never committed) and one for tests /
+> `db/seeds.rb` (obviously fake credentials).
+
+### 🔐 Authentication and access
+
+- Login by **username** (email is still required but is not the login key);
+  username lookup and uniqueness are case-insensitive.
+- **Self-registration disabled**: there is no sign-up route. Users are created
+  by an `admin` via Administrate (`/admin/users`) or by the seeds.
+- **Lockable** accounts: 3 failed attempts lock the account.
+- Self-service password change at `/account/password/edit`.
+
+### 🗺️ Main routes
+
+| Path                     | Description |
+|--------------------------|-------------|
+| `/`                      | landing page (login required) |
+| `/users/sign_in`         | login (Devise) |
+| `/account/password/edit` | current user's password change |
+| `/credits`               | credits page |
+| `/admin`                 | Administrate panel (`admin` only) |
+| `/up`                    | Rails health check |
+
+### 🧪 Testing and quality
+
+```bash
+bundle exec rspec            # test suite (spec/)
+bin/ci                       # full pipeline: rubocop, bundler-audit,
+                             # yarn audit, brakeman, rspec, seeds
+bundle exec rubocop -A       # style auto-fix
+bundle exec brakeman         # static security analysis
+```
+
+All tests run **exclusively against the test database**; the development
+database must never be used for tests.
+
+### 📦 Updating the knowledge graph
+
+The project maintains a knowledge graph in `graphify-out/`:
+
+```bash
+graphify update .                 # update the graph after code changes (AST only)
+graphify query "<question>"       # query the codebase
+```
+
+### 📄 License
+
+Distributed under the **MIT** license. See [LICENCE.md](LICENCE.md) (text in
+Italian and English).
+
+_Software developed with the contribution of artificial intelligence._
