@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"database/sql"
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -16,18 +17,27 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"syscall"
 	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/lib/pq"
 )
 
-// maxConcurrentProbes limita il numero totale di connessioni TCP aperte in
-// parallelo sull'intera scansione (non per-host). Con un pool di worker di
-// dimensione fissa il consumo di goroutine/descrittori resta costante qualunque
-// sia l'ampiezza della subnet: senza questo limite una subnet molto grande
-// (es. /8) farebbe esplodere memoria e file descriptor del processo.
-const maxConcurrentProbes = 512
+// maxWorkers è il tetto massimo di connessioni TCP aperte in parallelo
+// sull'intera scansione (non per-host). Un pool di worker di dimensione fissa
+// mantiene costante il consumo di goroutine/descrittori qualunque sia
+// l'ampiezza della subnet. Il numero effettivo di worker viene poi ridotto in
+// base al limite di file descriptor del processo (vedi workerCount).
+const maxWorkers = 2048
+
+// discoveryPorts è il numero di porte campionate per host nella fase di
+// discovery; discoveryMinRange è l'ampiezza minima del range richiesto oltre
+// la quale la discovery conviene (sotto, si scansiona tutto direttamente).
+const (
+	discoveryPorts    = 20
+	discoveryMinRange = 64
+)
 
 // hostCeiling è un tetto di sicurezza sul numero di indirizzi enumerati: oltre
 // questa soglia il programma rifiuta di partire. L'app NetSpy applica un limite
@@ -96,9 +106,8 @@ func parsePortRange(s string) (int, int, error) {
 }
 
 // scanWorker consuma coppie (host, porta) dal canale jobs, prova la connessione
-// e inoltra le porte aperte su results. Il numero di worker è fisso
-// (maxConcurrentProbes), quindi il parallelismo totale non dipende dalla
-// dimensione della subnet.
+// e inoltra le porte aperte su results. Il numero di worker è fisso, quindi il
+// parallelismo totale non dipende dalla dimensione della subnet.
 func scanWorker(jobs <-chan result, results chan<- result, timeout time.Duration, completed *int64, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for j := range jobs {
@@ -107,6 +116,115 @@ func scanWorker(jobs <-chan result, results chan<- result, timeout time.Duration
 		}
 		atomic.AddInt64(completed, 1)
 	}
+}
+
+// raiseFileLimit alza (best-effort) il limite soft di file descriptor a quello
+// hard, così il pool di worker può tenere aperte molte connessioni in parallelo.
+func raiseFileLimit() {
+	var lim syscall.Rlimit
+	if syscall.Getrlimit(syscall.RLIMIT_NOFILE, &lim) != nil {
+		return
+	}
+	lim.Cur = lim.Max
+	_ = syscall.Setrlimit(syscall.RLIMIT_NOFILE, &lim)
+}
+
+// workerCount sceglie quanti worker usare: al più maxWorkers, e comunque non
+// più di un terzo dei file descriptor disponibili, per lasciarne al resto del
+// processo (log, connessione al database, DNS...).
+func workerCount() int {
+	workers := maxWorkers
+	var lim syscall.Rlimit
+	if syscall.Getrlimit(syscall.RLIMIT_NOFILE, &lim) == nil {
+		if budget := int(lim.Cur / 3); budget < workers {
+			workers = budget
+		}
+	}
+	if workers < 64 {
+		workers = 64
+	}
+	return workers
+}
+
+// samplePorts restituisce fino a n porte del range [start, end], distribuite in
+// modo uniforme (estremi inclusi). Usato dalla fase di discovery.
+func samplePorts(start, end, n int) []int {
+	count := end - start + 1
+	if count <= n {
+		ports := make([]int, count)
+		for i := range ports {
+			ports[i] = start + i
+		}
+		return ports
+	}
+	step := count / n
+	if step < 1 {
+		step = 1
+	}
+	seen := make(map[int]bool, n+1)
+	ports := make([]int, 0, n+1)
+	for p := start; p <= end && len(ports) < n; p += step {
+		seen[p] = true
+		ports = append(ports, p)
+	}
+	if !seen[end] {
+		ports = append(ports, end)
+	}
+	return ports
+}
+
+// probeAlive considera un host "vivo" se una connessione TCP riesce (porta
+// aperta) oppure viene rifiutata subito (RST: host acceso, porta chiusa). Un
+// timeout non è un segnale di presenza.
+func probeAlive(host string, port int, timeout time.Duration) bool {
+	conn, err := net.DialTimeout("tcp", net.JoinHostPort(host, strconv.Itoa(port)), timeout)
+	if err == nil {
+		conn.Close()
+		return true
+	}
+	return errors.Is(err, syscall.ECONNREFUSED)
+}
+
+// discoverHosts campiona alcune porte per ogni host e restituisce (nell'ordine
+// originale) solo quelli che danno un segnale di presenza. Riduce drasticamente
+// il lavoro della scansione completa su subnet sparse, dove la maggior parte
+// degli indirizzi non risponde e costerebbe un timeout pieno per ogni porta.
+func discoverHosts(ips []string, ports []int, timeout time.Duration, workers int) []string {
+	jobs := make(chan result, workers)
+	hits := make(chan string, workers)
+	var wg sync.WaitGroup
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for j := range jobs {
+				if probeAlive(j.host, j.port, timeout) {
+					hits <- j.host
+				}
+			}
+		}()
+	}
+	go func() {
+		for _, host := range ips {
+			for _, port := range ports {
+				jobs <- result{host: host, port: port}
+			}
+		}
+		close(jobs)
+	}()
+	go func() { wg.Wait(); close(hits) }()
+
+	alive := make(map[string]struct{})
+	for host := range hits {
+		alive[host] = struct{}{}
+	}
+	live := make([]string, 0, len(alive))
+	for _, host := range ips {
+		if _, ok := alive[host]; ok {
+			live = append(live, host)
+		}
+	}
+	return live
 }
 
 // getMACAddress cerca il MAC address di un IP nella cache ARP del sistema
@@ -223,7 +341,11 @@ func main() {
 	noLog := flag.Bool("no-log", false, "non scrivere alcun file di log (solo stdout)")
 	runID := flag.Int64("run-id", 0, "id della riga lanscan_runs a cui associare i risultati (0 = nessuna)")
 	progressFile := flag.String("progress-file", "", "file in cui scrivere l'avanzamento come \"<fatti> <totale>\"")
+	discovery := flag.Bool("discovery", true, "salta gli host che non danno segnali di presenza prima della scansione completa")
 	flag.Parse()
+
+	raiseFileLimit()
+	workers := workerCount()
 
 	if !tableNamePattern.MatchString(*table) {
 		fmt.Println("errore: nome tabella non valido:", *table)
@@ -263,19 +385,31 @@ func main() {
 		defer fmt.Fprintln(out, "Log salvato in:", logFilename)
 	}
 
+	portCount := endPort - startPort + 1
+
 	fmt.Fprintln(out, "Subnet:", *target)
-	fmt.Fprintln(out, "Indirizzi IP da scansionare:", len(ips))
+	fmt.Fprintln(out, "Indirizzi IP nella subnet:", len(ips))
 	fmt.Fprintln(out, "Inizio scansione:", start.Format("2006-01-02 15:04:05"))
 
-	portCount := endPort - startPort + 1
-	totalProbes := len(ips) * portCount
+	// Fase di discovery: su una subnet sparsa la maggior parte del tempo se ne
+	// va in timeout su indirizzi che non esistono. Campionando poche porte per
+	// host si scartano subito quelli senza segnali di presenza, riducendo di
+	// molto le connessioni della scansione completa.
+	hosts := ips
+	if *discovery && portCount > discoveryMinRange {
+		fmt.Fprintf(out, "Discovery su %d indirizzi (%d porte campione)...\n", len(ips), discoveryPorts)
+		hosts = discoverHosts(ips, samplePorts(startPort, endPort, discoveryPorts), timeout, workers)
+		fmt.Fprintf(out, "Host che rispondono: %d/%d\n", len(hosts), len(ips))
+	}
+
+	totalProbes := len(hosts) * portCount
 
 	var completed int64
-	jobs := make(chan result, maxConcurrentProbes)
-	results := make(chan result, maxConcurrentProbes)
+	jobs := make(chan result, workers)
+	results := make(chan result, workers)
 
 	var wg sync.WaitGroup
-	for i := 0; i < maxConcurrentProbes; i++ {
+	for i := 0; i < workers; i++ {
 		wg.Add(1)
 		go scanWorker(jobs, results, timeout, &completed, &wg)
 	}
@@ -283,7 +417,7 @@ func main() {
 	// Un solo produttore alimenta il pool: le coppie (host, porta) sono create
 	// una alla volta, non pre-allocate come goroutine.
 	go func() {
-		for _, host := range ips {
+		for _, host := range hosts {
 			for port := startPort; port <= endPort; port++ {
 				jobs <- result{host: host, port: port}
 			}
@@ -350,7 +484,7 @@ func main() {
 	first := true
 	hostsWithOpenPorts := 0
 	saveErrors := 0
-	for _, host := range ips {
+	for _, host := range hosts {
 		ports := openPorts[host]
 		if len(ports) == 0 {
 			continue
