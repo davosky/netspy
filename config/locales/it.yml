@@ -7,8 +7,11 @@ it:
     navbar:
       toggle: Apri il menù
       administrate: Amministrazione
+      change_password: Cambia password
       credits: Crediti
       logout: Esci
+  passwords:
+    updated: La tua password è stata aggiornata.
   pages:
     index:
       heading: NetSpy
@@ -35,6 +38,7 @@ it:
         username: Nome utente
         password: Password
         password_confirmation: Conferma password
+        current_password: Password attuale
         remember_me: Ricordami
         email: Email
         first_name: Nome

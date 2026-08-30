@@ -23,6 +23,11 @@
                 </li>
               <% end %>
               <li>
+                <%= link_to edit_account_password_path, class: "dropdown-item" do %>
+                  <%= t("layouts.navbar.change_password") %>
+                <% end %>
+              </li>
+              <li>
                 <%= link_to credits_path, class: "dropdown-item" do %>
                   <%= t("layouts.navbar.credits") %>
                 <% end %>

@@ -1,5 +1,11 @@
 Rails.application.routes.draw do
-  devise_for :users
+  # Self-registration is disabled: only admins create users, via /admin/users.
+  devise_for :users, skip: [ :registrations ]
+
+  # Namespaced to avoid colliding with Devise's own dynamic password_path helper.
+  namespace :account do
+    resource :password, only: [ :edit, :update ]
+  end
 
   namespace :admin do
     resources :users

@@ -31,4 +31,26 @@ RSpec.describe "Authentication", type: :request do
     follow_redirect!
     expect(response).to redirect_to(new_user_session_path)
   end
+
+  describe "account locking" do
+    def attempt_wrong_password
+      post user_session_path, params: { user: { username: user.username, password: "wrong" } }
+    end
+
+    it "locks the account after 3 failed attempts and blocks a correct password afterwards" do
+      3.times { attempt_wrong_password }
+
+      expect(user.reload.access_locked?).to be(true)
+
+      post user_session_path, params: { user: { username: user.username, password: "password123" } }
+
+      expect(response.body).to include(I18n.t("devise.failure.locked"))
+    end
+
+    it "does not lock the account before the 3rd failed attempt" do
+      2.times { attempt_wrong_password }
+
+      expect(user.reload.access_locked?).to be(false)
+    end
+  end
 end

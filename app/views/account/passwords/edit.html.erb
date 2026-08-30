@@ -1,0 +1,36 @@
+<% content_for :title, t("devise.passwords.edit.change_your_password") %>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h1 class="h4 text-center mb-4"><%= t("devise.passwords.edit.change_your_password") %></h1>
+
+        <%= form_for current_user, as: :user, url: account_password_path, html: { method: :patch } do |f| %>
+          <%= render "devise/shared/error_messages", resource: current_user %>
+
+          <div class="mb-3">
+            <%= f.label :current_password, class: "form-label" %>
+            <%= f.password_field :current_password, autofocus: true, autocomplete: "current-password",
+                  class: "form-control", required: true %>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label :password, t("devise.passwords.edit.new_password"), class: "form-label" %>
+            <%= f.password_field :password, autocomplete: "new-password", class: "form-control", required: true %>
+          </div>
+
+          <div class="mb-3">
+            <%= f.label :password_confirmation, t("devise.passwords.edit.confirm_new_password"), class: "form-label" %>
+            <%= f.password_field :password_confirmation, autocomplete: "new-password",
+                  class: "form-control", required: true %>
+          </div>
+
+          <div class="d-grid">
+            <%= f.submit t("devise.passwords.edit.change_my_password"), class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

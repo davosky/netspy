@@ -1,8 +1,9 @@
 class User < ApplicationRecord
   # Devise handles password authentication; NetSpy signs in by username.
   # :validatable covers email presence/format/uniqueness and password length.
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+  # :registerable is intentionally omitted: only admins may create users (see Admin::UsersController).
+  devise :database_authenticatable, :recoverable,
+         :rememberable, :validatable, :lockable
 
   validates :username,
             presence: true,
