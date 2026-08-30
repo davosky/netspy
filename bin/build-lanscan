@@ -18,5 +18,8 @@ export GOTOOLCHAIN=local
 # distros/versions and with a smaller footprint than the cgo build.
 export CGO_ENABLED=0
 
-go build -trimpath -o bin/lanscan .
+# -trimpath + -buildvcs=false + stripped build id => byte-reproducible output,
+# so re-running this (e.g. from bin/setup) never leaves the committed binary
+# looking dirty in git.
+go build -trimpath -buildvcs=false -ldflags=-buildid= -o bin/lanscan .
 echo "build-lanscan: built $(cd ../.. && pwd)/vendor/lanscan/bin/lanscan"
