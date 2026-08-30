@@ -11,7 +11,7 @@ export default class extends Controller {
     doneTemplate: String, // "... %{duration} ... %{hosts} ..."
     failText: String,
   }
-  static targets = ["bar", "percent", "elapsed", "status"]
+  static targets = ["running", "bar", "percent", "elapsed", "status"]
 
   connect() {
     this.wasActive = false
@@ -44,7 +44,6 @@ export default class extends Controller {
 
     if (data.status === "completed" || data.status === "failed") {
       clearInterval(this.timer)
-      this.barTarget.classList.remove("progress-bar-striped", "progress-bar-animated")
       this.finish(data)
       // Only act if we actually watched the scan run (not when the page just
       // loaded on an already-finished run) — avoids a reload loop.
@@ -64,13 +63,13 @@ export default class extends Controller {
   }
 
   finish(data) {
+    if (this.hasRunningTarget) this.runningTarget.hidden = true
+
     if (data.status === "completed") {
-      this.barTarget.style.width = "100%"
       this.statusTarget.textContent = this.doneTemplateValue
         .replace("%{duration}", this.formatDuration(data.elapsed))
         .replace("%{hosts}", data.hosts_found)
     } else {
-      this.barTarget.classList.add("bg-danger")
       this.statusTarget.textContent = data.error || this.failTextValue
       this.statusTarget.classList.add("text-danger")
     }
