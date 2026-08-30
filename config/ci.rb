@@ -9,7 +9,9 @@ CI.run do
   step "Security: Yarn vulnerability audit", "yarn npm audit --all --recursive"
   step "Security: Brakeman code analysis", "bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error"
   step "Tests: RSpec", "bundle exec rspec"
-  step "Tests: Seeds", "env RAILS_ENV=test bin/rails db:seed:replant"
+  # db:seed:replant leaves the seeded admin in the test DB; db:test:prepare
+  # wipes it straight back out so the test DB never carries state between runs.
+  step "Tests: Seeds", "env RAILS_ENV=test bin/rails db:seed:replant db:test:prepare"
 
   # Optional: set a green GitHub commit status to unblock PR merge.
   # Requires the `gh` CLI and `gh extension install basecamp/gh-signoff`.
