@@ -10,7 +10,7 @@ RSpec.describe "Lanscans", type: :request do
       expect(response).to redirect_to(new_user_session_path)
     end
 
-    it "lists results for a signed in user" do
+    it "lists results and the launch form for a signed in user" do
       sign_in user
       create(:lanscan, ip_address: "10.1.1.5", target: "10.1.1.0/24", open_ports: "22 443")
 
@@ -19,6 +19,7 @@ RSpec.describe "Lanscans", type: :request do
       expect(response).to have_http_status(:ok)
       expect(response.body).to include("10.1.1.5")
       expect(response.body).to include("10.1.1.0/24")
+      expect(response.body).to include(I18n.t("lanscans.form.title"))
     end
   end
 
@@ -53,7 +54,7 @@ RSpec.describe "Lanscans", type: :request do
       post run_lanscans_path, params: { target: "not-a-cidr" }
 
       expect(LanscanJob).not_to have_received(:perform_later)
-      expect(response).to redirect_to(root_path)
+      expect(response).to redirect_to(lanscans_path)
       follow_redirect!
       expect(response.body).to include("CIDR")
     end

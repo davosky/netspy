@@ -1,9 +1,10 @@
 class LanscansController < ApplicationController
   before_action :authenticate_user!
 
-  # Grouped by run (same scanned_at), most recent first.
+  # Launch form plus the results grouped by run (same scanned_at), newest first.
   def index
     authorize Lanscan
+    @lanscan_defaults = LanscanRunner.defaults
     @runs = policy_scope(Lanscan).recent.group_by(&:scanned_at)
   end
 
@@ -20,6 +21,6 @@ class LanscansController < ApplicationController
     LanscanJob.perform_later(**options)
     redirect_to lanscans_path, notice: t("lanscans.run.enqueued", target: options[:target].presence || LanscanRunner::DEFAULT_TARGET)
   rescue LanscanRunner::InvalidParams => e
-    redirect_to root_path, alert: e.message
+    redirect_to lanscans_path, alert: e.message
   end
 end

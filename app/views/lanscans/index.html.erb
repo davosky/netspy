@@ -1,11 +1,14 @@
 <% content_for :title, t("lanscans.index.title") %>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="h3 mb-0"><i class="bi bi-radar me-2"></i><%= t("lanscans.index.title") %></h1>
-  <%= link_to root_path, class: "btn btn-outline-primary" do %>
-    <i class="bi bi-play-fill me-1"></i><%= t("lanscans.index.new_scan") %>
-  <% end %>
-</div>
+<h1 class="h3 mb-4"><i class="bi bi-radar me-2"></i><%= t("lanscans.index.title") %></h1>
+
+<% if policy(Lanscan).run? %>
+  <div class="mb-4">
+    <%= render "form", defaults: @lanscan_defaults %>
+  </div>
+<% end %>
+
+<h2 class="h5 mb-3"><%= t("lanscans.index.results") %></h2>
 
 <% if @runs.empty? %>
   <p class="text-body-secondary"><%= t("lanscans.index.empty") %></p>

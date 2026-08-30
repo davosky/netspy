@@ -29,8 +29,8 @@ it:
   lanscans:
     index:
       title: Scansioni LAN
-      new_scan: Nuova scansione
-      empty: Nessuna scansione registrata. Avviane una dalla home.
+      results: Risultati
+      empty: Nessuna scansione registrata. Avviane una dal form qui sopra.
       hosts_count:
         one: 1 host
         other: "%{count} host"
@@ -45,7 +45,6 @@ it:
       ports: Porte
       timeout: Timeout (ms)
       submit: Avvia scansione
-      results_link: Vedi i risultati
     run:
       enqueued: "Scansione di %{target} avviata: i risultati compariranno qui a fine scansione."
   pundit:
