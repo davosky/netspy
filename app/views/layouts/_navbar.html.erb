@@ -11,30 +11,36 @@
       <div class="collapse navbar-collapse justify-content-end" id="navbarMenu">
         <ul class="navbar-nav">
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarUserMenu" role="button"
+            <a class="nav-link dropdown" href="#" id="navbarUserMenu" role="button"
                data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-fill me-3"></i>
               <%= current_user.display_name %>
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarUserMenu">
               <% if current_user.admin? %>
-                <li><%= link_to admin_root_path, class: "dropdown-item" do %>
+                <li>
+                  <%= link_to admin_root_path, class: "dropdown-item" do %>
+                    <i class="bi bi-wrench-adjustable me-3"></i>
                     <%= t("layouts.navbar.administrate") %>
                   <% end %>
                 </li>
               <% end %>
               <li>
                 <%= link_to edit_account_password_path, class: "dropdown-item" do %>
+                  <i class="bi bi-key-fill me-3"></i>
                   <%= t("layouts.navbar.change_password") %>
                 <% end %>
               </li>
               <li>
                 <%= link_to credits_path, class: "dropdown-item" do %>
+                  <i class="bi bi-person-fill-check me-3"></i>
                   <%= t("layouts.navbar.credits") %>
                 <% end %>
               </li>
               <li><hr class="dropdown-divider"></li>
               <li>
                 <%= button_to destroy_user_session_path, method: :delete, class: "dropdown-item" do %>
+                  <i class="bi bi-door-open-fill text-danger me-3"></i>
                   <%= t("layouts.navbar.logout") %>
                 <% end %>
               </li>
