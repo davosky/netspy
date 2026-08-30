@@ -19,7 +19,8 @@ RSpec.describe "Authentication", type: :request do
     }
 
     expect(response).to have_http_status(:unprocessable_content)
-    expect(response.body).to include("Nome utente o password non validi")
+    expect(response.body).to include(I18n.t("devise.sessions.new.sign_in"))
+    expect(response.body).not_to include("Nome utente o password non validi")
   end
 
   it "signs out via DELETE" do
@@ -44,7 +45,8 @@ RSpec.describe "Authentication", type: :request do
 
       post user_session_path, params: { user: { username: user.username, password: "password123" } }
 
-      expect(response.body).to include(I18n.t("devise.failure.locked"))
+      expect(response).not_to redirect_to(root_path)
+      expect(response).to have_http_status(:unprocessable_content)
     end
 
     it "does not lock the account before the 3rd failed attempt" do

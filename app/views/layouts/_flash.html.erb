@@ -1,5 +1,5 @@
 <% flash.each do |type, message| %>
-  <% next if type.to_s == "notice" && devise_controller? && controller_name == "sessions" && action_name == "new" %>
+  <% next if devise_controller? && controller_name == "sessions" && action_name.in?(%w[new create]) %>
   <div class="mt-3 alert alert-<%= flash_bootstrap_class(type) %> alert-dismissible fade show" role="alert" data-controller="flash">
     <%= message %>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="<%= t("app.close") %>"></button>

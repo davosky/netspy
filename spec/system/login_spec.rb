@@ -15,12 +15,14 @@ RSpec.describe "Login", type: :system do
     expect(page).to have_link(I18n.t("layouts.navbar.credits"))
   end
 
-  it "shows an error for wrong credentials" do
+  it "keeps the user on the login screen without any flash message for wrong credentials" do
     visit new_user_session_path
     fill_in User.human_attribute_name(:username), with: "ghost"
     fill_in User.human_attribute_name(:password), with: "nope"
     click_button I18n.t("devise.sessions.new.sign_in")
 
-    expect(page).to have_content("Nome utente o password non validi")
+    expect(page).to have_button(I18n.t("devise.sessions.new.sign_in"))
+    expect(page).to have_no_css(".alert")
+    expect(page).to have_no_content("Nome utente o password non validi")
   end
 end
