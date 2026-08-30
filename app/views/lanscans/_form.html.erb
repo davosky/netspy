@@ -5,7 +5,7 @@
       <i class="bi bi-radar me-2"></i><%= t("lanscans.form.title") %>
     </h2>
     <%= form_with url: run_lanscans_path, method: :post, class: "row g-3" do %>
-      <div class="col-12 col-md-5">
+      <div class="col-12 col-md-3">
         <%= label_tag :target, t("lanscans.form.target"), class: "form-label" %>
         <%= text_field_tag :target, defaults[:target], class: "form-control", required: true,
               placeholder: "192.168.1.0/24" %>
@@ -16,13 +16,15 @@
         <%= text_field_tag :ports, defaults[:ports], class: "form-control", required: true,
               pattern: "\\d{1,5}-\\d{1,5}" %>
       </div>
-      <div class="col-6 col-md-2">
+      <div class="col-6 col-md-3">
         <%= label_tag :timeout, t("lanscans.form.timeout"), class: "form-label" %>
         <%= number_field_tag :timeout, defaults[:timeout], class: "form-control", required: true,
               min: 50, max: 10_000 %>
       </div>
-      <div class="col-12 col-md-2 d-grid align-self-end">
-        <%= submit_tag t("lanscans.form.submit"), class: "btn btn-primary" %>
+      <div class="col-12 col-md-3 d-grid pt-4 pb-4">
+        <%= button_tag type: "submit", class: "btn btn-primary" do %>
+          <i class="bi bi-play-fill me-3"></i><%= t("lanscans.form.submit") %>
+        <% end %>
       </div>
     <% end %>
   </div>

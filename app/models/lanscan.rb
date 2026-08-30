@@ -2,6 +2,8 @@
 # same run share `scanned_at` and `target`; the rows are written by the Go
 # `vendor/lanscan` binary (see LanscanRunner) or, in tests, by ActiveRecord.
 class Lanscan < ApplicationRecord
+  belongs_to :lanscan_run, optional: true
+
   scope :recent, -> { order(scanned_at: :desc, ip_address: :asc) }
   scope :for_run, ->(scanned_at) { where(scanned_at: scanned_at) }
 

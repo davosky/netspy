@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   resources :lanscans, only: [ :index, :show ] do
     post :run, on: :collection
   end
+  resources :lanscan_runs, only: [ :show ]
 
   get "credits", to: "pages#credits"
   root "pages#index"

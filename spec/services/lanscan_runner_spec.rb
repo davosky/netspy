@@ -7,6 +7,23 @@ RSpec.describe LanscanRunner do
     end
   end
 
+  describe ".probe_count" do
+    it "is hosts * ports" do
+      expect(described_class.probe_count(target: "10.0.0.0/24", ports: "1-100")).to eq(256 * 100)
+    end
+
+    it "is 0 for garbage input" do
+      expect(described_class.probe_count(target: "nope", ports: "x")).to eq(0)
+    end
+  end
+
+  describe "#to_params" do
+    it "returns the normalised parameters with defaults applied" do
+      expect(described_class.new(target: nil, ports: "20-25", timeout: "300").to_params)
+        .to eq(target: "10.182.1.0/24", ports: "20-25", timeout: 300)
+    end
+  end
+
   describe "#validate!" do
     it "passes with valid parameters" do
       runner = described_class.new(target: "192.168.1.0/24", ports: "1-1024", timeout: 700)
@@ -99,6 +116,16 @@ RSpec.describe LanscanRunner do
     it "reports failure when the process exits non-zero" do
       allow(status).to receive(:success?).and_return(false)
       expect(described_class.call.success).to be(false)
+    end
+
+    it "passes -run-id and -progress-file when given a run" do
+      run = create(:lanscan_run)
+      described_class.call(target: run.target, ports: run.ports, timeout: run.timeout, run: run)
+
+      expect(Open3).to have_received(:capture2e) do |_env, _bin, *args, **_kwargs|
+        expect(args).to include("-run-id", run.id.to_s)
+        expect(args).to include("-progress-file", run.progress_file_path.to_s)
+      end
     end
   end
 end

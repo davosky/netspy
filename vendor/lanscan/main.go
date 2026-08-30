@@ -198,6 +198,22 @@ func printProgressBar(current, total int) {
 	fmt.Printf("\r[%s] %3.0f%% (%d/%d)", bar, percent*100, current, total)
 }
 
+// writeProgressFile scrive "<fatti> <totale>" nel file indicato in modo atomico
+// (scrittura su file temporaneo + rename), così l'app NetSpy può leggerlo da un
+// altro processo senza rischiare letture parziali. Se path è vuoto non fa nulla;
+// gli errori sono ignorati (l'avanzamento è best-effort, non deve mai bloccare
+// la scansione).
+func writeProgressFile(path string, current, total int) {
+	if path == "" {
+		return
+	}
+	tmp := path + ".tmp"
+	if err := os.WriteFile(tmp, []byte(fmt.Sprintf("%d %d\n", current, total)), 0o644); err != nil {
+		return
+	}
+	_ = os.Rename(tmp, path)
+}
+
 func main() {
 	target := flag.String("target", "10.182.1.0/24", "subnet da scansionare (CIDR)")
 	ports := flag.String("ports", "1-1024", "range di porte da scansionare (es. 1-1024)")
@@ -205,6 +221,8 @@ func main() {
 	table := flag.String("table", "lanscans", "tabella PostgreSQL in cui salvare i risultati")
 	logDir := flag.String("log-dir", ".", "cartella in cui salvare il file di log della scansione")
 	noLog := flag.Bool("no-log", false, "non scrivere alcun file di log (solo stdout)")
+	runID := flag.Int64("run-id", 0, "id della riga lanscan_runs a cui associare i risultati (0 = nessuna)")
+	progressFile := flag.String("progress-file", "", "file in cui scrivere l'avanzamento come \"<fatti> <totale>\"")
 	flag.Parse()
 
 	if !tableNamePattern.MatchString(*table) {
@@ -290,9 +308,12 @@ func main() {
 			case <-done:
 				printProgressBar(totalProbes, totalProbes)
 				fmt.Println()
+				writeProgressFile(*progressFile, totalProbes, totalProbes)
 				return
 			case <-ticker.C:
-				printProgressBar(int(atomic.LoadInt64(&completed)), totalProbes)
+				current := int(atomic.LoadInt64(&completed))
+				printProgressBar(current, totalProbes)
+				writeProgressFile(*progressFile, current, totalProbes)
 			}
 		}
 	}()
@@ -311,7 +332,7 @@ func main() {
 	defer db.Close()
 
 	insertStmt, err := db.Prepare(fmt.Sprintf(
-		`INSERT INTO %s (scanned_at, target, ip_address, mac_address, open_ports) VALUES ($1, $2, $3, $4, $5)`,
+		`INSERT INTO %s (scanned_at, target, ip_address, mac_address, open_ports, lanscan_run_id) VALUES ($1, $2, $3, $4, $5, $6)`,
 		pq.QuoteIdentifier(*table),
 	))
 	if err != nil {
@@ -319,6 +340,12 @@ func main() {
 		os.Exit(1)
 	}
 	defer insertStmt.Close()
+
+	// NULL quando il binario è usato stand-alone (nessuna riga lanscan_runs).
+	var runValue interface{}
+	if *runID > 0 {
+		runValue = *runID
+	}
 
 	first := true
 	hostsWithOpenPorts := 0
@@ -352,7 +379,7 @@ func main() {
 		if macFound {
 			macValue = mac
 		}
-		if _, err := insertStmt.Exec(start, *target, host, macValue, strings.Join(portStrs, " ")); err != nil {
+		if _, err := insertStmt.Exec(start, *target, host, macValue, strings.Join(portStrs, " "), runValue); err != nil {
 			fmt.Fprintf(out, "  errore salvataggio su database: %v\n", err)
 			saveErrors++
 		}

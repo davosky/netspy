@@ -46,7 +46,11 @@ it:
       timeout: Timeout (ms)
       submit: Avvia scansione
     run:
-      enqueued: "Scansione di %{target} avviata: i risultati compariranno qui a fine scansione."
+      enqueued: "Scansione di %{target} avviata: puoi seguirne l'avanzamento qui sotto."
+    progress:
+      running: "Scansione di %{target} in corso…"
+      completed: "Scansione completata in %{duration} — %{hosts} host con porte aperte."
+      failed: Scansione non riuscita.
   pundit:
     not_authorized: Non sei autorizzato a eseguire questa azione.
   activerecord:

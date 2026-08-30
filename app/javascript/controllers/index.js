@@ -6,3 +6,6 @@ import { application } from "./application"
 
 import FlashController from "./flash_controller"
 application.register("flash", FlashController)
+
+import LanscanProgressController from "./lanscan_progress_controller"
+application.register("lanscan-progress", LanscanProgressController)

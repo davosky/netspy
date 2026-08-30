@@ -1,15 +1,12 @@
 <% content_for :title, t("lanscans.index.title") %>
-
 <h1 class="h3 mb-4"><i class="bi bi-radar me-2"></i><%= t("lanscans.index.title") %></h1>
-
 <% if policy(Lanscan).run? %>
   <div class="mb-4">
     <%= render "form", defaults: @lanscan_defaults %>
+    <%= render "progress", run: @active_run if @active_run %>
   </div>
 <% end %>
-
 <h2 class="h5 mb-3"><%= t("lanscans.index.results") %></h2>
-
 <% if @runs.empty? %>
   <p class="text-body-secondary"><%= t("lanscans.index.empty") %></p>
 <% else %>
@@ -32,7 +29,7 @@
           <tbody>
             <% rows.each do |lanscan| %>
               <tr>
-                <td><code><%= lanscan.ip_address %></code></td>
+                <td><code class="fw-bold text-info"><%= lanscan.ip_address %></code></td>
                 <td><%= lanscan.mac_address.presence || "—" %></td>
                 <td>
                   <% lanscan.open_ports_list.each do |port| %>

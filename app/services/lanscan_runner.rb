@@ -29,10 +29,27 @@ class LanscanRunner
 
   def self.call(...) = new(...).call
 
-  def initialize(target: nil, ports: nil, timeout: nil)
+  # Number of TCP probes a scan of `target` over `ports` will perform
+  # (hosts * ports) — used to pre-fill a run's progress total.
+  def self.probe_count(target:, ports:)
+    _ip, prefix = target.to_s.split("/", 2)
+    hosts = 2**(32 - prefix.to_i)
+    from, to = ports.to_s.split("-", 2).map(&:to_i)
+    hosts * (to - from + 1)
+  rescue StandardError
+    0
+  end
+
+  def initialize(target: nil, ports: nil, timeout: nil, run: nil)
     @target  = target.presence || DEFAULT_TARGET
     @ports   = ports.presence || DEFAULT_PORTS
     @timeout = Integer(timeout.presence || DEFAULT_TIMEOUT, exception: false)
+    @run     = run
+  end
+
+  # Normalised parameters (defaults applied), for persisting a LanscanRun.
+  def to_params
+    { target: @target, ports: @ports, timeout: @timeout }
   end
 
   def call
@@ -77,13 +94,17 @@ class LanscanRunner
   end
 
   def cli_args
-    [
+    args = [
       "-target", @target,
       "-ports", @ports,
       "-timeout", @timeout.to_s,
       "-table", Lanscan.table_name,
       "-log-dir", LOG_DIR.to_s
     ]
+    if @run
+      args += [ "-run-id", @run.id.to_s, "-progress-file", @run.progress_file_path.to_s ]
+    end
+    args
   end
 
   # libpq-style variables consumed directly by lib/pq inside the Go binary.
