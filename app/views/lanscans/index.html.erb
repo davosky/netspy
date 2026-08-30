@@ -23,21 +23,27 @@
               <th><%= Lanscan.human_attribute_name(:ip_address) %></th>
               <th><%= Lanscan.human_attribute_name(:mac_address) %></th>
               <th><%= Lanscan.human_attribute_name(:open_ports) %></th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
             <% rows.each do |lanscan| %>
               <tr>
-                <td><code class="fw-bold text-info"><%= lanscan.ip_address %></code></td>
-                <td><%= lanscan.mac_address.presence || "—" %></td>
+                <td>
+                  <code class="fw-bold text-info">
+                    <%= lanscan.ip_address %>
+                  </code>
+                </td>
+                <td>
+                  <code class="fw-bold text-success">
+                    <%= lanscan.mac_address.presence || "—" %>
+                  </code>
+                </td>
                 <td>
                   <% lanscan.open_ports_list.each do |port| %>
-                    <span class="badge text-bg-secondary"><%= port %></span>
+                    <code class="fw-bold text-warning">
+                      <%= port %>
+                    </code>
                   <% end %>
-                </td>
-                <td class="text-end">
-                  <%= link_to t("lanscans.index.detail"), lanscan_path(lanscan), class: "btn btn-sm btn-link" %>
                 </td>
               </tr>
             <% end %>
