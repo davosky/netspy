@@ -28,6 +28,20 @@ RSpec.describe LanscanRunner do
         .to raise_error(LanscanRunner::InvalidParams, /IPv4/)
     end
 
+    it "rejects a CIDR prefix outside 0-32" do
+      expect { described_class.new(target: "10.0.0.0/40").validate! }
+        .to raise_error(LanscanRunner::InvalidParams, /prefisso/)
+    end
+
+    it "rejects a subnet larger than MAX_HOSTS" do
+      expect { described_class.new(target: "10.0.0.0/12").validate! }
+        .to raise_error(LanscanRunner::InvalidParams, /troppo ampia/)
+    end
+
+    it "accepts a target with host bits set (like net.ParseCIDR)" do
+      expect { described_class.new(target: "192.168.1.42/24").validate! }.not_to raise_error
+    end
+
     it "rejects a malformed port range" do
       expect { described_class.new(ports: "80").validate! }
         .to raise_error(LanscanRunner::InvalidParams, /porte/)

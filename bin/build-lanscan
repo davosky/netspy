@@ -14,6 +14,9 @@ fi
 # Pin to the locally installed toolchain: NetSpy tracks whatever Go is on the
 # build host rather than fetching the exact patch release from go.mod.
 export GOTOOLCHAIN=local
+# CGO_ENABLED=0 -> a static, libc-independent binary: portable across Linux
+# distros/versions and with a smaller footprint than the cgo build.
+export CGO_ENABLED=0
 
-go build -o bin/lanscan .
+go build -trimpath -o bin/lanscan .
 echo "build-lanscan: built $(cd ../.. && pwd)/vendor/lanscan/bin/lanscan"

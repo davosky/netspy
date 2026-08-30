@@ -22,7 +22,17 @@ import (
 	"github.com/lib/pq"
 )
 
-const portsPerHostParallel = 50
+// maxConcurrentProbes limita il numero totale di connessioni TCP aperte in
+// parallelo sull'intera scansione (non per-host). Con un pool di worker di
+// dimensione fissa il consumo di goroutine/descrittori resta costante qualunque
+// sia l'ampiezza della subnet: senza questo limite una subnet molto grande
+// (es. /8) farebbe esplodere memoria e file descriptor del processo.
+const maxConcurrentProbes = 512
+
+// hostCeiling è un tetto di sicurezza sul numero di indirizzi enumerati: oltre
+// questa soglia il programma rifiuta di partire. L'app NetSpy applica un limite
+// molto più stretto a monte (LanscanRunner); questo protegge l'uso stand-alone.
+const hostCeiling = 65536
 
 // tableNamePattern limita il valore di -table a un identificatore SQL semplice
 // (niente schema-qualified, niente virgolette): l'unico modo sicuro di
@@ -57,7 +67,7 @@ func incIP(ip net.IP) {
 }
 
 func scanPort(host string, port int, timeout time.Duration) bool {
-	address := fmt.Sprintf("%s:%d", host, port)
+	address := net.JoinHostPort(host, strconv.Itoa(port))
 	conn, err := net.DialTimeout("tcp", address, timeout)
 	if err != nil {
 		return false
@@ -85,23 +95,18 @@ func parsePortRange(s string) (int, int, error) {
 	return startPort, endPort, nil
 }
 
-func scanHost(host string, startPort, endPort int, timeout time.Duration, results chan<- result, wg *sync.WaitGroup, completed *int32) {
+// scanWorker consuma coppie (host, porta) dal canale jobs, prova la connessione
+// e inoltra le porte aperte su results. Il numero di worker è fisso
+// (maxConcurrentProbes), quindi il parallelismo totale non dipende dalla
+// dimensione della subnet.
+func scanWorker(jobs <-chan result, results chan<- result, timeout time.Duration, completed *int64, wg *sync.WaitGroup) {
 	defer wg.Done()
-	var hostWg sync.WaitGroup
-	sem := make(chan struct{}, portsPerHostParallel)
-	for port := startPort; port <= endPort; port++ {
-		hostWg.Add(1)
-		go func(p int) {
-			defer hostWg.Done()
-			sem <- struct{}{}
-			defer func() { <-sem }()
-			if scanPort(host, p, timeout) {
-				results <- result{host: host, port: p}
-			}
-		}(port)
+	for j := range jobs {
+		if scanPort(j.host, j.port, timeout) {
+			results <- j
+		}
+		atomic.AddInt64(completed, 1)
 	}
-	hostWg.Wait()
-	atomic.AddInt32(completed, 1)
 }
 
 // getMACAddress cerca il MAC address di un IP nella cache ARP del sistema
@@ -214,6 +219,10 @@ func main() {
 		fmt.Println("errore parsing CIDR:", err)
 		os.Exit(1)
 	}
+	if len(ips) > hostCeiling {
+		fmt.Printf("errore: subnet troppo ampia (%d indirizzi, max %d)\n", len(ips), hostCeiling)
+		os.Exit(1)
+	}
 
 	startPort, endPort, err := parsePortRange(*ports)
 	if err != nil {
@@ -240,14 +249,29 @@ func main() {
 	fmt.Fprintln(out, "Indirizzi IP da scansionare:", len(ips))
 	fmt.Fprintln(out, "Inizio scansione:", start.Format("2006-01-02 15:04:05"))
 
-	var wg sync.WaitGroup
-	var completed int32
-	results := make(chan result, 100)
+	portCount := endPort - startPort + 1
+	totalProbes := len(ips) * portCount
 
-	for _, host := range ips {
+	var completed int64
+	jobs := make(chan result, maxConcurrentProbes)
+	results := make(chan result, maxConcurrentProbes)
+
+	var wg sync.WaitGroup
+	for i := 0; i < maxConcurrentProbes; i++ {
 		wg.Add(1)
-		go scanHost(host, startPort, endPort, timeout, results, &wg, &completed)
+		go scanWorker(jobs, results, timeout, &completed, &wg)
 	}
+
+	// Un solo produttore alimenta il pool: le coppie (host, porta) sono create
+	// una alla volta, non pre-allocate come goroutine.
+	go func() {
+		for _, host := range ips {
+			for port := startPort; port <= endPort; port++ {
+				jobs <- result{host: host, port: port}
+			}
+		}
+		close(jobs)
+	}()
 
 	done := make(chan struct{})
 	go func() {
@@ -261,15 +285,14 @@ func main() {
 		defer close(progressDone)
 		ticker := time.NewTicker(150 * time.Millisecond)
 		defer ticker.Stop()
-		total := len(ips)
 		for {
 			select {
 			case <-done:
-				printProgressBar(total, total)
+				printProgressBar(totalProbes, totalProbes)
 				fmt.Println()
 				return
 			case <-ticker.C:
-				printProgressBar(int(atomic.LoadInt32(&completed)), total)
+				printProgressBar(int(atomic.LoadInt64(&completed)), totalProbes)
 			}
 		}
 	}()

@@ -11,6 +11,11 @@ class LanscanRunner
   DEFAULT_TIMEOUT = 700
   TIMEOUT_RANGE   = (50..10_000)
 
+  # Upper bound on the number of addresses a single scan may enumerate. Keeps a
+  # scan bounded in time and resources; a target larger than a /20 is well
+  # beyond a single LAN segment. Raise only if a deployment genuinely needs it.
+  MAX_HOSTS = 4096
+
   BIN_PATH = ENV.fetch("LANSCAN_BIN", Rails.root.join("vendor/lanscan/bin/lanscan").to_s)
   LOG_DIR  = Rails.root.join("log/lanscan")
 
@@ -50,9 +55,15 @@ class LanscanRunner
   private
 
   def validate_target!
-    raise InvalidParams, "target senza maschera CIDR (es. 192.168.1.0/24)" unless @target.include?("/")
-    addr = IPAddr.new(@target)
-    raise InvalidParams, "target non IPv4" unless addr.ipv4?
+    ip, prefix = @target.split("/", 2)
+    raise InvalidParams, "target senza maschera CIDR (es. 192.168.1.0/24)" if prefix.nil?
+    raise InvalidParams, "target non IPv4" unless IPAddr.new(ip).ipv4?
+
+    prefix = Integer(prefix, 10, exception: false)
+    raise InvalidParams, "prefisso CIDR non valido (0-32)" unless prefix&.between?(0, 32)
+
+    hosts = 2**(32 - prefix)
+    raise InvalidParams, "subnet troppo ampia: #{hosts} indirizzi (max #{MAX_HOSTS})" if hosts > MAX_HOSTS
   rescue IPAddr::Error
     raise InvalidParams, "target CIDR non valido: #{@target}"
   end
