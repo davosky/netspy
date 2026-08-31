@@ -1,31 +1,32 @@
-<%# Launch form for a LAN scan. `defaults` is a hash from LanscanRunner.defaults. %>
+<%# Launch form for a LAN scan. `lans` is an ActiveRecord::Relation of Lan. %>
 <div class="card shadow-sm">
   <div class="card-body p-4">
     <h2 class="h5 card-title mb-3">
       <i class="bi bi-radar me-2"></i><%= t("lanscans.form.title") %>
     </h2>
-    <%= form_with url: run_lanscans_path, method: :post, id: "lanscan-launch-form", class: "row g-3" do %>
-      <div class="col-12 col-md-3">
-        <%= label_tag :target, t("lanscans.form.target"), class: "form-label" %>
-        <%= text_field_tag :target, defaults[:target], class: "form-control", required: true,
-              placeholder: "192.168.1.0/24" %>
-        <div class="form-text"><%= t("lanscans.form.target_hint") %></div>
-      </div>
-      <div class="col-6 col-md-3">
-        <%= label_tag :ports, t("lanscans.form.ports"), class: "form-label" %>
-        <%= text_field_tag :ports, defaults[:ports], class: "form-control", required: true,
-              pattern: "\\d{1,5}-\\d{1,5}" %>
-      </div>
-      <div class="col-6 col-md-3">
-        <%= label_tag :timeout, t("lanscans.form.timeout"), class: "form-label" %>
-        <%= number_field_tag :timeout, defaults[:timeout], class: "form-control", required: true,
-              min: 50, max: 10_000 %>
-      </div>
-      <div class="col-12 col-md-3 d-grid pt-4 pb-4">
-        <%= button_tag type: "submit", class: "btn btn-primary" do %>
-          <i class="bi bi-play-fill me-3"></i><%= t("lanscans.form.submit") %>
+
+    <% if lans.any? %>
+      <%= form_with url: run_lanscans_path, method: :post, id: "lanscan-launch-form", class: "row g-3" do %>
+        <div class="col-12 col-md-9">
+          <%= label_tag :lan_id, t("lanscans.form.lan"), class: "form-label" %>
+          <%= select_tag :lan_id,
+                options_from_collection_for_select(lans, :id, ->(lan) { lan_option_label(lan) }),
+                class: "form-select", required: true %>
+          <div class="form-text"><%= t("lanscans.form.lan_hint") %></div>
+        </div>
+        <div class="col-12 col-md-3 d-grid pt-4 pb-4">
+          <%= button_tag type: "submit", class: "btn btn-primary" do %>
+            <i class="bi bi-play-fill me-3"></i><%= t("lanscans.form.submit") %>
+          <% end %>
+        </div>
+      <% end %>
+    <% else %>
+      <p class="mb-0 text-body-secondary">
+        <%= t("lanscans.form.no_lans") %>
+        <% if policy(Lan).new? %>
+          <%= link_to t("lanscans.form.configure_lans"), admin_lans_path %>
         <% end %>
-      </div>
+      </p>
     <% end %>
   </div>
 </div>

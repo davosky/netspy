@@ -29,24 +29,28 @@ it:
   lanscans:
     index:
       title: Scansioni LAN
-      results: Risultati
+      results: Ultima scansione
       empty: Nessuna scansione registrata. Avviane una dal form qui sopra.
       hosts_count:
         one: 1 host
         other: "%{count} host"
+      via: "via %{client}"
+      scanner_client: Client che ha eseguito la scansione
       detail: Dettaglio
     show:
       title: Host rilevato
       back: Torna alle scansioni
     form:
       title: Avvia una scansione LAN
-      target: Subnet (CIDR)
-      target_hint: Notazione CIDR, es. 192.168.1.0/24
-      ports: Porte
-      timeout: Timeout (ms)
+      lan: LAN da scansionare
+      lan_hint: Scegli una delle LAN configurate. Parametri e modalità (locale o via client remoto) sono definiti nella LAN.
+      local: locale
+      no_lans: Nessuna LAN configurata.
+      configure_lans: Configura le LAN
       submit: Avvia scansione
     run:
       enqueued: "Scansione di %{target} avviata: puoi seguirne l'avanzamento qui sotto."
+      lan_not_found: LAN non trovata.
     progress:
       running: "Scansione di %{target} in corso…"
       completed: "Scansione completata in %{duration} — %{hosts} host con porte aperte."
@@ -63,6 +67,10 @@ it:
         one: Scansione LAN
         many: Scansioni LAN
         other: Scansioni LAN
+      lan:
+        one: LAN
+        many: LAN
+        other: LAN
     attributes:
       lanscan:
         scanned_at: Data scansione
@@ -70,6 +78,17 @@ it:
         ip_address: Indirizzo IP
         mac_address: MAC address
         open_ports: Porte aperte
+        created_at: Creato il
+        updated_at: Aggiornato il
+      lan:
+        lan: Subnet (CIDR)
+        ports: Porte
+        timeout: Timeout (ms)
+        primary: LAN primaria
+        secondary: LAN secondaria
+        remote_client_ip: IP client remoto
+        remote_user: Utente client remoto
+        binpath: Percorso eseguibile lanscan
         created_at: Creato il
         updated_at: Aggiornato il
       user:
@@ -96,6 +115,11 @@ it:
         restrict_dependent_destroy:
           has_one: Il record non può essere cancellato perchè esiste un %{record} dipendente
           has_many: Il record non può essere cancellato perchè esistono %{record} dipendenti
+      models:
+        lan:
+          one_role_required: "Indica se la LAN è primaria oppure secondaria (esattamente una delle due)."
+          not_ipv4: non è un indirizzo IPv4
+          primary_no_remote: va lasciato vuoto per la LAN primaria
   activemodel:
     attributes:
       import_form:

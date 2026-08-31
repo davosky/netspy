@@ -2,54 +2,69 @@
 <h1 class="h3 mb-4"><i class="bi bi-radar me-2"></i><%= t("lanscans.index.title") %></h1>
 <% if policy(Lanscan).run? %>
   <div class="mb-4">
-    <%= render "form", defaults: @lanscan_defaults %>
+    <%= render "form", lans: @lans %>
     <%= render "progress", run: @active_run if @active_run %>
   </div>
 <% end %>
 <h2 class="h5 mb-3"><%= t("lanscans.index.results") %></h2>
-<% if @runs.empty? %>
+<% if @last_rows.blank? %>
   <p class="text-body-secondary"><%= t("lanscans.index.empty") %></p>
 <% else %>
-  <% @runs.each do |scanned_at, rows| %>
-    <div class="card shadow-sm mb-4">
-      <div class="card-header d-flex justify-content-between">
-        <span><i class="bi bi-clock-history me-2"></i><%= l(scanned_at, format: :long) %></span>
-        <span class="text-body-secondary"><%= rows.first.target %> · <%= t("lanscans.index.hosts_count", count: rows.size) %></span>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-hover mb-0 align-middle">
-          <thead>
+  <div class="card shadow-sm mb-4">
+    <div class="card-header d-flex justify-content-between">
+      <span>
+        <i class="bi bi-clock-history me-2"></i>
+        <%= l(@last_run&.started_at || @last_rows.first.scanned_at, format: :long) %>
+      </span>
+      <span class="text-body-secondary">
+        <%= lanscan_group_title(@last_run, @last_rows) %>
+        <% if @last_run&.lan&.secondary? %>
+          <span class="badge text-bg-secondary ms-1"><%= t("lanscans.index.via", client: @last_run.lan.remote_client_ip) %></span>
+        <% elsif @last_run&.lan&.primary? %>
+          <span class="badge text-bg-secondary ms-1"><%= t("lanscans.form.local") %></span>
+        <% end %>
+        · <%= t("lanscans.index.hosts_count", count: @last_rows.size) %>
+      </span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead>
+          <tr>
+            <th><%= Lanscan.human_attribute_name(:ip_address) %></th>
+            <th><%= Lanscan.human_attribute_name(:mac_address) %></th>
+            <th><%= Lanscan.human_attribute_name(:open_ports) %></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% scanner_ip = lanscan_scanner_ip(@last_run) %>
+          <% @last_rows.each do |lanscan| %>
+            <% is_scanner = lanscan.ip_address == scanner_ip %>
             <tr>
-              <th><%= Lanscan.human_attribute_name(:ip_address) %></th>
-              <th><%= Lanscan.human_attribute_name(:mac_address) %></th>
-              <th><%= Lanscan.human_attribute_name(:open_ports) %></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% rows.each do |lanscan| %>
-              <tr>
-                <td>
-                  <code class="fw-bold text-info">
-                    <%= lanscan.ip_address %>
-                  </code>
-                </td>
-                <td>
-                  <code class="fw-bold text-success">
-                    <%= lanscan.mac_address.presence || "—" %>
-                  </code>
-                </td>
-                <td>
+              <td>
+                <%= content_tag :code, lanscan.ip_address,
+                      class: [ "fw-bold", is_scanner ? "text-danger fst-italic" : "text-info" ],
+                      title: (t("lanscans.index.scanner_client") if is_scanner) %>
+              </td>
+              <td>
+                <code class="fw-bold text-success">
+                  <%= lanscan.mac_address.presence || "—" %>
+                </code>
+              </td>
+              <td>
+                <% if lanscan.open_ports_list.empty? %>
+                  <span class="text-body-secondary">—</span>
+                <% else %>
                   <% lanscan.open_ports_list.each do |port| %>
                     <code class="fw-bold text-warning">
                       <%= port %>
                     </code>
                   <% end %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
-      </div>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
-  <% end %>
+  </div>
 <% end %>

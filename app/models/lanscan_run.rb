@@ -5,6 +5,7 @@ class LanscanRun < ApplicationRecord
   STATUSES = %w[pending running completed failed].freeze
 
   belongs_to :user, optional: true
+  belongs_to :lan, optional: true
   has_many :lanscans, dependent: :nullify
 
   validates :target, :ports, :timeout, presence: true

@@ -12,6 +12,10 @@ RSpec.describe LanscanRun, type: :model do
     it { is_expected.to validate_inclusion_of(:status).in_array(described_class::STATUSES) }
   end
 
+  describe "associations" do
+    it { is_expected.to belong_to(:lan).optional }
+  end
+
   describe "#elapsed_seconds" do
     it "is 0 before the run starts" do
       expect(build(:lanscan_run, started_at: nil).elapsed_seconds).to eq(0.0)

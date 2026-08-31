@@ -56,8 +56,8 @@ export default class extends Controller {
     }
   }
 
-  // Back to the server-rendered default values (form.reset() restores each
-  // field to its `value` attribute, which is LanscanRunner.defaults).
+  // Back to the initial state (form.reset() puts the LAN <select> back to its
+  // first option).
   resetForm() {
     document.getElementById("lanscan-launch-form")?.reset()
   }
