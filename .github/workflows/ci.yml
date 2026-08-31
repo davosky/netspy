@@ -81,6 +81,18 @@ jobs:
         with:
           bundler-cache: true
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: yarn
+
+      - name: Install JS dependencies and build assets
+        run: |
+          yarn install --immutable
+          yarn build
+          yarn build:css
+
       - name: Run tests
         env:
           RAILS_ENV: test
@@ -121,6 +133,18 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: yarn
+
+      - name: Install JS dependencies and build assets
+        run: |
+          yarn install --immutable
+          yarn build
+          yarn build:css
 
       - name: Run System Tests
         env:

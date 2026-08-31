@@ -16,7 +16,12 @@ FileUtils.chdir APP_ROOT do
   system("bundle check") || system!("bundle install")
 
   # Install JavaScript dependencies
-  system("yarn install --check-files")
+  system!("yarn install --immutable")
+
+  # Build the JS + CSS bundles into app/assets/builds (git-ignored, so a fresh
+  # clone and CI must build them or every view that renders a layout 500s).
+  system! "yarn build"
+  system! "yarn build:css"
 
   # Compile the Go lanscan network scanner (no-op if Go is missing).
   system! "bin/build-lanscan"
